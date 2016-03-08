@@ -1,0 +1,99 @@
+{
+    "variables": {
+    "mgg:=mgg": {
+    "hist" : "(40,100,180)",
+    "cut" : "",
+    "blind" :"",
+    "log" : false,
+    "norm" : false,
+    "title" : "m_{#gamma#gamma} [GeV]"
+    }   
+	}, 
+    "processes": {
+	"vbf_sig_jobs_125_62" : {
+            "color": 2,
+            "order": 0,
+            "name" : "vbf", 
+            "title": "VBF(m_{h}=125)",
+            "cut"  : "",
+	    "kfactor" : 5, 
+            "label": "signal"
+        }, 
+//        "ggh_sig_jobs_125_62" : {
+//            "color": 2,
+//            "order": 1,
+//            "name" : "ggh",
+//            "title": "ggf(m_{h}=125)",
+//	    "kfactor" : 5, 
+//	    "cut"  : "",
+//            "label": "spectator"
+//        },
+        "promptprompt_62": {
+            "color": 122,
+            "order": 2,
+            "name" : "dipho",
+            "title": "#gamma#gamma",
+            "cut"  : "",
+            "label": "background"
+        },
+        "promptfake_62": {
+            "color": 127,
+            "order": 3,
+            "name" : "promptfake",
+            "title": "prompt-fake",
+            "cut"  : "",
+            "label": "background"
+        },
+
+        "fakefake_62":{
+            "color": 130,
+            "order": 5,
+            "name" : "fakefake",
+            "title": "fake-fake",
+            "cut"  : "",
+            "label": "background"
+        },
+        "Data":{
+            "color": 1,
+            "order": 6,
+            //"name" : "AllSilverAndGold",
+	    "name" : "Data",
+	    //"name" : "DoubleEG_RunIISpring15-ReReco74X",
+	    "cut"  : "",
+            "title": "data",
+            "label": "data"
+        }
+    }, 
+    "selection" : {
+	"name"  : "unblind",	
+	"title" : ""
+    }, 
+    "tree": {
+	"name": "tagsDumper/*_tree",
+	"kfactor": 1.45,
+	"lumi"   : 1
+    },
+    
+    "systematics": {
+	"UpTrees" : [],//["vbfTagDumper/trees/*_13TeV_VBFDiJet_JECUp01sigma"]  ,
+	"DwTrees" : [] //["vbfTagDumper/trees/*_13TeV_VBFDiJet_JECDown01sigma"]
+	
+    },
+    
+    "labels":{
+	"name" : [
+	    //"CMSSW 74x",
+	    //"DiPhoton preselection",
+//	    "VBF preselection",
+	    "Analysis selection",
+	    "All VBF categories"
+	    //"#geq 2 Jets",
+//	    "100 < m_{#gamma#gamma} <180 GeV"
+	    //"Jet RMS(|#eta|>2.5) > 0.04"
+	    //"Barrel Jets: |#eta|<2.5"
+	    //"Endcap Jets: |#eta|>2.5"
+	    
+	]
+    }
+    
+}

@@ -61,7 +61,7 @@ def read_plotcard(plotcard, cut_card=''):
     global globalOptions
     config = None
     with open(plotcard) as f:
-        config = json.loads(jsmin(f.read()), object_pairs_hook=collections.OrderedDict)
+        config = json.loads(jsmin(f.read()))
     if cut_card != '':
         logger.info(' ---- cut card is specified ----')
         logger.info(' -- %20s ' % ( cut_card )        )
@@ -162,9 +162,9 @@ def draw_cut_line(hist, variable=''):
 #---------------------------------------------------------                
 def draw_labels(label):
     t = ROOT.TLatex()
-    t.SetTextAlign(12)
+    t.SetTextAlign(12) # 12
     t.SetTextFont (settings.text_font)
-    t.SetTextSize (settings.text_size)
+    t.SetTextSize (1.33*settings.text_size) # extra size
     shift = 0
     lines = []
     if type(label) == type(''):
@@ -174,7 +174,7 @@ def draw_labels(label):
     else:
         raise ImportError("Label format is not supported: please enter a string or a table of strings!")
     for s in lines:
-        t.DrawLatexNDC((0.04 + ROOT.gStyle.GetPadLeftMargin()),
+        t.DrawLatexNDC((0.02 + ROOT.gStyle.GetPadLeftMargin()),
                        (0.95 - shift - ROOT.gStyle.GetPadTopMargin()),s)
         shift = shift + settings.label_shift
 
@@ -198,11 +198,11 @@ def draw_cms_headlabel(label_left  ='#scale[1.2]{#bf{CMS}} #it{Preliminary}',
     tex_left  = ROOT.TLatex()
     tex_left.SetTextAlign (11);
     tex_left.SetTextFont  (42);
-    tex_left.SetTextSize  (0.036);
+    tex_left.SetTextSize  (0.048); # 0.036
     tex_right = ROOT.TLatex()
     tex_right.SetTextAlign(31);
     tex_right.SetTextFont (42);
-    tex_right.SetTextSize (0.036);
+    tex_right.SetTextSize (0.044); # 0.036
     tex_left.DrawLatexNDC (0.14,
                            1.01 - ROOT.gStyle.GetPadTopMargin(),label_left)
     tex_right.DrawLatexNDC(1-0.05,
@@ -477,17 +477,17 @@ def DataMCratio(histMC,histData,
     return c
 #---------------------------------------------------------
 def customizeHisto(hist):
-    hist.GetYaxis().SetTitleSize  (21)
+    hist.GetYaxis().SetTitleSize  (24) # 21
     hist.GetYaxis().SetTitleFont  (43)
     hist.GetYaxis().SetTitleOffset(2.1)
     hist.GetYaxis().SetLabelFont  (43)
-    hist.GetYaxis().SetLabelSize  (18)
+    hist.GetYaxis().SetLabelSize  (24) # 18
     
-    hist.GetXaxis().SetTitleSize  (23)
+    hist.GetXaxis().SetTitleSize  (30) # 23
     hist.GetXaxis().SetTitleFont  (43)
     hist.GetXaxis().SetTitleOffset( 4)
     hist.GetXaxis().SetLabelFont  (43)
-    hist.GetXaxis().SetLabelSize  (18)
+    hist.GetXaxis().SetLabelSize  (24) # 18
 
 def book_trees(select = ''):
     ordsam = OrderedDict(sorted(samples.items(), key=lambda x: x[1]['order']))
@@ -581,9 +581,9 @@ def draw_instack(variable, label='VBF', select=''):
     
     legend  = None
     if settings.two_colomn_legend:
-        legend  = ROOT.TLegend(0.45, 0.72,
+        legend  = ROOT.TLegend(0.35, 0.62,
                                (1 - ROOT.gStyle.GetPadRightMargin()),
-                               (0.96 - ROOT.gStyle.GetPadTopMargin()))
+                               (0.86 - ROOT.gStyle.GetPadTopMargin()))
         legend.SetNColumns(2)
         legend.SetColumnSeparation(0)
     else:
@@ -640,7 +640,11 @@ def draw_instack(variable, label='VBF', select=''):
                                                                  treeinfo.get('lumi'   ,1.0),
                                                                  samples[proc].get('kfactor',1.0)))
                 )
+            print tree
+            print 'h_' + varname + variables[variable]['hist']
         else:
+            print tree
+            print "Data:",'h_' + varname + variables[variable]['hist']
             tree.Project(
                 'h_' + varname + variables[variable]['hist'],
                 formula,
@@ -684,6 +688,7 @@ def draw_instack(variable, label='VBF', select=''):
                     histDwSys[sysname].Add(histDw)
                     
         # ----------------------------------------------    
+        print "proc: ",proc,"h_" + varname
         hist = ROOT.gDirectory.Get('h_' + varname )
         hist.SetDirectory(0)
 
@@ -726,7 +731,7 @@ def draw_instack(variable, label='VBF', select=''):
     htmp   = histos[0].Clone('__htmp__')
     bounds = [float(s) for s in re.findall('[-+]?\d*\.\d+|\d+',variables[variable]['hist'])]
     htmp.SetTitle(';' + variables[variable]['title']
-                  + (';events %s %s '% ( fformat((bounds[2]-bounds[1])/bounds[0]),
+                  + (';events / %s %s '% ( fformat((bounds[2]-bounds[1])/bounds[0]),
                                             variables[variable].get('unit',''))    ))
     htmp.Reset()
     if  options.allloghist or variables[variable]['log']:
@@ -736,7 +741,7 @@ def draw_instack(variable, label='VBF', select=''):
         histfilename = histfilename + '_log'
         ROOT.gPad.SetLogy()
     else:
-        ymin = 0
+        ymin = 0.1
         ymax = hstack.GetMaximum() + hstack.GetMaximum()*0.5
         htmp.GetYaxis().SetRangeUser(ymin,ymax)
     customizeHisto(htmp)
@@ -746,7 +751,8 @@ def draw_instack(variable, label='VBF', select=''):
     herrstat.Draw('E2,same')
     hdata = None
     for h in histos:
-        if 'data' not in h.GetName():
+        print "for h in histos:",h.GetName()
+        if 'data' not in h.GetName().lower():
             h.Draw('hist,same')
         else:
             h.Draw('E,same')
@@ -765,7 +771,7 @@ def draw_instack(variable, label='VBF', select=''):
     # this is for the legend
     legend.SetTextAlign( 12 )
     legend.SetTextFont ( 43 )
-    legend.SetTextSize ( 18 )
+    legend.SetTextSize ( 24 ) # 18
     legend.SetLineColor( 0 )
     legend.SetFillColor( 0 )
     legend.SetFillStyle( 0 )
@@ -777,14 +783,14 @@ def draw_instack(variable, label='VBF', select=''):
         draw_labels('w/o cuts')
     else:
         draw_labels(plotlabels['name'])
-    draw_cms_headlabel(label_right='#sqrt{s} = 13 TeV, L = %1.2f fb^{-1}' % treeinfo.get('lumi',2.63))
+    draw_cms_headlabel(label_right='2.7 fb^{-1} (13 TeV)')  #'#sqrt{s} = 13 TeV, L = 2.7 fb^{-1}')
     
     c.cd()
     c.cd(2)
     errorHist = MakeStatProgression(hstack.GetStack().Last(),histDwSys, histUpSys)
     ROOT.SetOwnership(errorHist,0)
     errorHist.GetXaxis().SetTitle(htmp.GetXaxis().GetTitle())
-    errorHist.GetYaxis().SetTitle('Data/MC')
+    errorHist.GetYaxis().SetTitle('Data/Simulation')
     errorHist.GetYaxis().CenterTitle(True)
     customizeHisto(errorHist)
     errorHist.Draw('E2')
