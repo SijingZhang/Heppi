@@ -310,7 +310,7 @@ class options (object):
             "kfactor"       :  1.0,
             "intlumi"       :  1.0,
             "cutflow"       : [ "" ],
-            "weight_branch" : "weight",
+            "weight_branch" : "weight ",
             "categories"    : []
         }
         self.__dict__  = self.__template__
@@ -840,7 +840,8 @@ class instack ():
             logger.info('nominal::'+ sam +' tree: '+ samples[sam].get('_root_tree_',ROOT.TChain()).GetName()
                         + ' nEvent:' + str(samples[sam].get('_root_tree_',ROOT.TChain()).GetEntries()))
     #---------------------------------------------------------
-    def draw(self, varkey, label='VBF', select=''):
+    def draw(self, varkey, label='VBF', select=''):  # VBF preselection plots
+#    def draw(self, varkey, label='zplus2j', select=''): # validation plots
         variable = None
         try:
             variable = self.variables[varkey]
@@ -848,7 +849,8 @@ class instack ():
             logger.error(colored(" Variable not registred on the plotcard. Please check !","red"))
             return
         histname = ('stack_histogram_' +
-                    variable.name + '_' + label + '_'
+#                    variable.name + '_' + label + '_'
+                    variable.name + '_' + label + ''
                     '')
         print('check')
         print(variable.name)
@@ -894,10 +896,11 @@ class instack ():
         for proc,sample in bar(self.samples.items()):
             _cutflow_ = variable.root_cutflow
             if len(sample.cut) != 0:
-                _cutflow_ = '&&'.join([variable.root_cutflow[:-1],sample.cut+')'])
+                _cutflow_ = ' * ('.join([variable.root_cutflow[:-1],sample.cut+')'])
             if len(variable.blind) != 0 and sample.label == 'data':
-                _cutflow_ = '&&'.join([variable.root_cutflow[:-1],variable.blind+')'])
+                _cutflow_ = ' * ('.join([variable.root_cutflow[:-1],variable.blind+')'])
             if sample.label != 'data':
+#            if 'background' in sample.label :
                 sample.root_tree.Project(
                     'h_' + variable.name + variable.hist,
                     variable.formula,
@@ -1033,6 +1036,7 @@ class instack ():
                        + (';events / %s %s '% (utils.fformat((bounds[2]-bounds[1])/bounds[0], variable.unit != ""),
                                                variable.unit) ))
         _htmp_.Reset()
+	_htmp_.SetTitleOffset(1.6)
         _ymax_ = max([x.GetMaximum() for x in variable.root_histos])
         _ymin_ = min([x.GetMinimum() for x in variable.root_histos])
 
@@ -1042,9 +1046,9 @@ class instack ():
                 _ymax_ = 75 * hstack.GetMaximum()
             else:
                 _ymin_ = (0.01 - 0.003) if _ymin_ <= 0 else _ymin_
-                _ymax_ = hstack.GetMaximum()*1000
+                _ymax_ = hstack.GetMaximum()*100
 
-            _htmp_.GetYaxis().SetRangeUser(_ymin_,_ymax_)
+            _htmp_.GetYaxis().SetRangeUser(0.1,_ymax_)
             ROOT.gPad.SetLogy()
         else:
             _ymin_ = 0
@@ -1155,7 +1159,7 @@ class instack ():
 
             # concidence
             line = ROOT.TLine(ratioHist.GetXaxis().GetXmin(),1,ratioHist.GetXaxis().GetXmax(),1)
-            line.SetLineColor(4)
+            line.SetLineColor(1)
             line.SetLineStyle(7)
             line.Draw()
             ROOT.SetOwnership(line,0)
